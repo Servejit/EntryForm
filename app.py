@@ -1,3 +1,4 @@
+import html
 import re
 import requests
 import streamlit as st
@@ -17,6 +18,54 @@ FLOWER_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 72" fil
 <path d="M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z"/>
 <path d="M34 64 Q60 69 86 64"/>
 </svg>"""
+
+@st.dialog("Congratulations!", width="small")
+def show_trial_popup(username, password):
+    safe_username = html.escape(str(username))
+    safe_password = html.escape(str(password))
+    st.markdown(
+        f"""
+        <div style="
+            background:linear-gradient(145deg,#0b2923,#142d35);
+            border:1px solid rgba(215,184,121,.65);
+            border-radius:20px;padding:24px 20px;text-align:center;
+            box-shadow:0 16px 45px rgba(0,0,0,.28);">
+          <div style="font-size:38px;margin-bottom:8px;">🎉</div>
+          <div style="color:#e9ce91;font-size:22px;font-weight:800;line-height:1.35;">
+            Congratulations!
+          </div>
+          <div style="color:#f7f0df;font-size:17px;font-weight:700;margin:10px 0 18px;">
+            You Have Unlocked 10-Days Trial Period
+          </div>
+          <div style="text-align:left;background:rgba(255,255,255,.07);
+              border:1px solid rgba(215,184,121,.35);border-radius:12px;
+              padding:13px 15px;margin:10px 0;">
+            <div style="color:#d9c79f;font-size:12px;letter-spacing:1px;">USERNAME</div>
+            <div style="color:#ffffff;font-size:18px;font-weight:750;overflow-wrap:anywhere;">
+              {safe_username}
+            </div>
+          </div>
+          <div style="text-align:left;background:rgba(255,255,255,.07);
+              border:1px solid rgba(215,184,121,.35);border-radius:12px;
+              padding:13px 15px;margin:10px 0 18px;">
+            <div style="color:#d9c79f;font-size:12px;letter-spacing:1px;">PASSWORD</div>
+            <div style="color:#ffffff;font-size:18px;font-weight:750;overflow-wrap:anywhere;">
+              {safe_password}
+            </div>
+          </div>
+          <div style="color:#cbd8d0;font-size:13px;margin-bottom:13px;">
+            Your trial access is ready. Use the credentials above to continue.
+          </div>
+          <a href="https://6thsense-vardaan.streamlit.app/" target="_blank"
+             style="display:block;text-decoration:none;background:linear-gradient(110deg,#e8d09c,#c39b5a);
+             color:#14211d;font-weight:800;padding:13px 16px;border-radius:11px;">
+             Open 6thSense-Vardaan
+          </a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 
 st.markdown(
     """
@@ -312,12 +361,16 @@ if submitted:
                     result = {}
 
                 if result.get("success") is True:
-                    st.markdown(
-                        '<div class="submission-success">✅ FORM SUBMITTED — Your registration has been received successfully. '
-                        'Our team will get in touch.</div>',
-                        unsafe_allow_html=True,
-                    )
-                    st.balloons()
+                    assigned_username = result.get("username")
+                    assigned_password = result.get("password")
+                    if assigned_username and assigned_password:
+                        st.balloons()
+                        show_trial_popup(assigned_username, assigned_password)
+                    else:
+                        st.error(
+                            "❌ REGISTRATION SAVED, BUT LOGIN CREDENTIALS COULD NOT BE CONFIRMED. "
+                            "Please contact the 6thSense-Vardaan team before trying again."
+                        )
                 else:
                     rejection_reason = result.get(
                         "message",
