@@ -196,8 +196,7 @@ with st.form("client_registration_form", clear_on_submit=False):
     left, right = st.columns(2)
     with left:
         full_name = st.text_input("Full Name *", placeholder="Enter your full name")
-        mobile = st.text_input("Mobile Number *", placeholder="e.g. +91 98765 43210")
-        email = st.text_input("Email Address *", placeholder="name@example.com")
+        whatsapp_number = st.text_input("WhatsApp Number *", placeholder="e.g. +91 98765 43210")
         city = st.text_input("City *", placeholder="Your city")
     with right:
         occupation = st.selectbox(
@@ -230,11 +229,9 @@ if submitted:
     errors = []
     if len(full_name.strip()) < 2:
         errors.append("Please enter your full name.")
-    digits = re.sub(r"\D", "", mobile)
+    digits = re.sub(r"\D", "", whatsapp_number)
     if not 10 <= len(digits) <= 15:
-        errors.append("Please enter a valid mobile number with 10–15 digits.")
-    if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email.strip()):
-        errors.append("Please enter a valid email address.")
+        errors.append("Please enter a valid WhatsApp number with 10–15 digits.")
     if not city.strip():
         errors.append("Please enter your city.")
     if occupation == "Select occupation":
@@ -263,8 +260,7 @@ if submitted:
             payload = {
                 "token": submission_token,
                 "full_name": full_name.strip(),
-                "mobile": mobile.strip(),
-                "email": email.strip(),
+                "whatsapp_number": whatsapp_number.strip(),
                 "city": city.strip(),
                 "occupation": occupation,
                 "trading_experience": experience,
