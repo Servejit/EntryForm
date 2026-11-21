@@ -50,9 +50,10 @@ st.markdown(
     .brand-title {
         text-align: center;
         color: #f7f0df;
-        font-size: clamp(2rem, 6vw, 3.2rem);
+        font-size: clamp(1.45rem, 6vw, 3.2rem);
         font-weight: 700;
         letter-spacing: .015em;
+        white-space: nowrap;
         margin: 0 0 .35rem 0;
     }
     .brand-subtitle {
