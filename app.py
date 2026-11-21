@@ -248,6 +248,7 @@ if submitted:
         errors.append("Please confirm the contact consent to submit.")
 
     if errors:
+        st.error("❌ FORM REJECTED — Please correct the details below and submit again.")
         for error in errors:
             st.error(error)
     else:
@@ -257,8 +258,8 @@ if submitted:
 
         if not webhook_url or not submission_token:
             st.error(
-                "The response destination is not connected yet. Please try again later "
-                "or contact the website administrator."
+                "❌ FORM REJECTED — The response destination is not connected yet. "
+                "Please try again later or contact the website administrator."
             )
         else:
             payload = {
@@ -287,21 +288,20 @@ if submitted:
 
                 if result.get("success") is True:
                     st.success(
-                        "Thank you! Your registration has been submitted successfully. "
+                        "✅ FORM SUBMITTED — Your registration has been received successfully. "
                         "Our team will get in touch."
                     )
                     st.balloons()
                 else:
-                    st.error(
-                        result.get(
-                            "message",
-                            "We could not confirm your submission. Please try again later.",
-                        )
+                    rejection_reason = result.get(
+                        "message",
+                        "We could not confirm your submission. Please try again later.",
                     )
+                    st.error(f"❌ FORM REJECTED — {rejection_reason}")
             except requests.RequestException:
                 st.error(
-                    "We could not reach the response service. Your form has not been "
-                    "confirmed as submitted. Please try again in a moment."
+                    "❌ FORM REJECTED — We could not reach the response service. "
+                    "Your form has not been confirmed as submitted. Please try again in a moment."
                 )
 
 st.markdown(
