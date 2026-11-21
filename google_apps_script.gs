@@ -55,7 +55,7 @@ function doPost(e) {
         cleanCell(body.city),
         cleanCell(body.occupation),
         cleanCell(body.trading_experience),
-        cleanCell((body.areas_of_interest || []).join(", ")),
+        cleanCell(body.areas_of_interest || ""),
         cleanCell(body.message || ""),
         body.contact_consent === true ? "Yes" : "No"
       ]);
