@@ -63,25 +63,93 @@ st.markdown(
         margin-bottom: 2rem;
     }
     .intro-card {
-        background: rgba(255,255,255,.055);
-        border: 1px solid rgba(201,167,106,.32);
-        border-radius: 18px;
-        padding: clamp(1.2rem, 4vw, 2rem);
-        box-shadow: 0 16px 42px rgba(0,0,0,.18);
+        position: relative;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 100% 0%, rgba(201,167,106,.13), transparent 34%),
+          linear-gradient(135deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+        border: 1px solid rgba(218,184,121,.42);
+        border-radius: 22px;
+        padding: clamp(1.35rem, 5vw, 2.5rem);
+        box-shadow: 0 22px 60px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.07);
+    }
+    .intro-kicker {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        color: #d7b879;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .19em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+    .intro-kicker:after {
+        content: "";
+        display: block;
+        width: 42px;
+        height: 1px;
+        background: linear-gradient(90deg, #d7b879, transparent);
     }
     .intro-heading {
-        color: #e4c58b;
-        font-size: 1.3rem;
-        font-weight: 650;
-        margin-bottom: .9rem;
+        color: #fff5df;
+        font-family: Georgia, serif;
+        font-size: clamp(1.7rem, 4.8vw, 2.35rem);
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -.025em;
+        max-width: 680px;
+        margin-bottom: 1.35rem;
+    }
+    .intro-lead {
+        color: #e7d7b7;
+        font-size: 1.07rem;
+        line-height: 1.85;
+        border-left: 2px solid #c9a76a;
+        padding-left: 1rem;
+        margin: 0 0 1.25rem 0;
     }
     .intro-card p {
-        color: #e5e9e2;
-        line-height: 1.8;
-        font-size: 1rem;
-        margin-bottom: .9rem;
+        color: #d8e2dc;
+        line-height: 1.85;
+        font-size: .98rem;
+        margin-bottom: 1rem;
     }
-    .intro-card p:last-child { margin-bottom: 0; }
+    .intro-pillars {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .65rem;
+        margin: 1.5rem 0 1.35rem;
+    }
+    .intro-pillar {
+        background: rgba(8,25,24,.48);
+        border: 1px solid rgba(201,167,106,.2);
+        border-radius: 12px;
+        padding: .85rem .8rem;
+        color: #e8d6b3;
+        font-size: .82rem;
+        line-height: 1.45;
+        text-align: center;
+    }
+    .intro-pillar strong {
+        display: block;
+        color: #f2d59b;
+        font-size: .88rem;
+        margin-bottom: .25rem;
+    }
+    .intro-statement {
+        border-top: 1px solid rgba(201,167,106,.25);
+        padding-top: 1.1rem;
+        margin-top: 1.2rem;
+        color: #f1e6d0;
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+    .intro-statement strong { color: #e7c786; }
+    @media (max-width: 560px) {
+        .intro-pillars { grid-template-columns: 1fr; }
+        .intro-pillar { text-align: left; }
+    }
     .coming-soon {
         color: #c9d6cd;
         text-align: center;
@@ -104,25 +172,35 @@ st.markdown(
 st.markdown(
     """
     <section class="intro-card">
-      <div class="intro-heading">Introduction to the Trading Industry</div>
-      <p>
-        The trading industry is growing rapidly across the globe. More investors,
-        trading institutions, retail traders, Foreign Institutional Investors (FIIs),
-        Domestic Institutional Investors (DIIs), and banks are entering this field.
+      <div class="intro-kicker">Our perspective</div>
+      <div class="intro-heading">Building clarity in a rapidly evolving trading world.</div>
+      <p class="intro-lead">
+        Financial markets are expanding, participation is broadening, and the value
+        of informed, disciplined decision-making has never been more important.
       </p>
       <p>
-        Educational institutions have also started offering courses to create
-        awareness and build knowledge in the trading field. In addition, SEBI works
-        to protect investors' rights and promote a fair securities market.
+        Across the globe, the trading ecosystem brings together individual investors,
+        retail traders, financial institutions, Foreign Institutional Investors (FIIs),
+        Domestic Institutional Investors (DIIs), and banks. This growing participation
+        is creating an increasing need for practical market knowledge and stronger
+        analytical skills.
       </p>
       <p>
-        Therefore, mastering the right skills is essential for developing a
-        disciplined approach and achieving a more informed trading experience.
+        Financial education plays an important role in building awareness and
+        understanding. In India, the Securities and Exchange Board of India (SEBI)
+        works to protect investors' interests and support a fair, transparent
+        securities market.
       </p>
-      <p>
-        <strong>6thSense-Vardaan</strong> helps traders become more efficient in
-        data analysis through its workshops.
-      </p>
+      <div class="intro-pillars">
+        <div class="intro-pillar"><strong>Market Awareness</strong>Understand the evolving market landscape</div>
+        <div class="intro-pillar"><strong>Disciplined Learning</strong>Build knowledge with a structured approach</div>
+        <div class="intro-pillar"><strong>Data Analysis</strong>Develop stronger analytical capabilities</div>
+      </div>
+      <div class="intro-statement">
+        At <strong>6thSense-Vardaan</strong>, our focus is to help traders become more
+        efficient in market data analysis through dedicated workshops—encouraging
+        a more informed, thoughtful, and disciplined approach to the markets.
+      </div>
     </section>
     """,
     unsafe_allow_html=True,
