@@ -210,11 +210,10 @@ with st.form("client_registration_form", clear_on_submit=False):
             ["Select experience", "Beginner", "Less than 1 year", "1–3 years",
              "More than 3 years"],
         )
-        interests = st.multiselect(
+        interests = st.selectbox(
             "Area of Interest *",
-            ["Trading Education", "Market Data Analysis", "Practical Workshops",
-             "Financial Market Awareness"],
-            placeholder="Choose one or more",
+            ["Select one area", "Trading Education", "Market Data Analysis",
+             "Practical Workshops", "Financial Market Awareness"],
         )
     message = st.text_area(
         "Message / Enquiry (Optional)",
@@ -243,8 +242,8 @@ if submitted:
         errors.append("Please select your occupation.")
     if experience == "Select experience":
         errors.append("Please select your trading experience.")
-    if not interests:
-        errors.append("Please select at least one area of interest.")
+    if interests == "Select one area":
+        errors.append("Please select one area of interest.")
     if not consent:
         errors.append("Please confirm the contact consent to submit.")
 
