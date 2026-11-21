@@ -126,6 +126,18 @@ st.markdown(
         font-weight:750; line-height:1.65;
         box-shadow:0 10px 28px rgba(22,163,74,.12),inset 0 1px 0 rgba(220,252,231,.08);
     }
+    .submission-error {
+        color:#fee2e2; background:linear-gradient(120deg,rgba(127,29,29,.62),rgba(153,27,27,.30));
+        border:1px solid rgba(248,113,113,.62); border-left:5px solid #f87171;
+        border-radius:13px; padding:1rem 1.15rem; margin:.8rem 0;
+        font-weight:750; line-height:1.65;
+        box-shadow:0 10px 28px rgba(220,38,38,.12),inset 0 1px 0 rgba(254,226,226,.08);
+    }
+    .submission-error-detail {
+        color:#fecaca; background:rgba(127,29,29,.22);
+        border-left:3px solid #ef4444; border-radius:7px;
+        padding:.55rem .8rem; margin:.35rem 0; line-height:1.5;
+    }
     .privacy-note {
         color:#aebeb5; font-size:.8rem; line-height:1.6;
         text-align:center; margin-top:.8rem;
@@ -255,9 +267,15 @@ if submitted:
         errors.append("Please confirm the contact consent to submit.")
 
     if errors:
-        st.error("❌ FORM REJECTED — Please correct the details below and submit again.")
+        st.markdown(
+            '<div class="submission-error">❌ FORM REJECTED — Please correct the details below and submit again.</div>',
+            unsafe_allow_html=True,
+        )
         for error in errors:
-            st.error(error)
+            st.markdown(
+                f'<div class="submission-error-detail">• {error}</div>',
+                unsafe_allow_html=True,
+            )
     else:
         config = st.secrets.get("google_sheets", {})
         webhook_url = str(config.get("webhook_url", "")).strip()
