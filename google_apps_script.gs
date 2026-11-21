@@ -1,24 +1,21 @@
 /**
  * 6thSense-Vardaan form → Google Sheets receiver.
  *
- * Create/open the destination Google Sheet, then choose Extensions → Apps Script.
- * Paste this complete file into Code.gs and save.
- *
- * In Apps Script: Project Settings → Script Properties, add:
- *   Property: SUBMISSION_TOKEN
- *   Value: a long private random string of your choice
+ * This script supports a standalone Apps Script project.
+ * In Project Settings → Script Properties, add:
+ *   SUBMISSION_TOKEN = your private token
+ *   SPREADSHEET_ID = the ID from your Google Sheet URL
  *
  * Deploy → New deployment → Web app:
  *   Execute as: Me
  *   Who has access: Anyone
- * Copy the deployed Web app URL into Streamlit secrets.
  */
 
 function doPost(e) {
   try {
     const body = JSON.parse((e && e.postData && e.postData.contents) || "{}");
-    const expectedToken = PropertiesService.getScriptProperties()
-      .getProperty("SUBMISSION_TOKEN");
+    const properties = PropertiesService.getScriptProperties();
+    const expectedToken = properties.getProperty("SUBMISSION_TOKEN");
 
     if (!expectedToken || body.token !== expectedToken) {
       return jsonResponse({ success: false, message: "Submission could not be authorised." });
@@ -34,7 +31,13 @@ function doPost(e) {
       }
     }
 
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    const spreadsheetId = properties.getProperty("SPREADSHEET_ID");
+    if (!spreadsheetId) {
+      throw new Error("Missing SPREADSHEET_ID script property.");
+    }
+    const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+    const sheet = spreadsheet.getSheets()[0];
+
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {
@@ -72,7 +75,7 @@ function doPost(e) {
 function cleanCell(value) {
   const text = String(value == null ? "" : value).trim();
   // Prevent spreadsheet formula injection from user-entered text.
-  return /^[=+@\-]/.test(text) ? "'" + text : text;
+  return /^[=+@\\-]/.test(text) ? "'" + text : text;
 }
 
 function jsonResponse(data) {
