@@ -119,6 +119,13 @@ st.markdown(
         color:#101d19; border-color:#f0dcae;
         background:linear-gradient(110deg,#f0dfb8,#d1ad70);
     }
+    .submission-success {
+        color:#dcfce7; background:linear-gradient(120deg,rgba(20,83,45,.62),rgba(22,101,52,.30));
+        border:1px solid rgba(74,222,128,.58); border-left:5px solid #4ade80;
+        border-radius:13px; padding:1rem 1.15rem; margin:.8rem 0;
+        font-weight:750; line-height:1.65;
+        box-shadow:0 10px 28px rgba(22,163,74,.12),inset 0 1px 0 rgba(220,252,231,.08);
+    }
     .privacy-note {
         color:#aebeb5; font-size:.8rem; line-height:1.6;
         text-align:center; margin-top:.8rem;
@@ -287,9 +294,10 @@ if submitted:
                     result = {}
 
                 if result.get("success") is True:
-                    st.success(
-                        "✅ FORM SUBMITTED — Your registration has been received successfully. "
-                        "Our team will get in touch."
+                    st.markdown(
+                        '<div class="submission-success">✅ FORM SUBMITTED — Your registration has been received successfully. '
+                        'Our team will get in touch.</div>',
+                        unsafe_allow_html=True,
                     )
                     st.balloons()
                 else:
