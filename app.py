@@ -196,7 +196,9 @@ with st.form("client_registration_form", clear_on_submit=False):
     left, right = st.columns(2)
     with left:
         full_name = st.text_input("Full Name *", placeholder="Enter your full name")
-        whatsapp_number = st.text_input("WhatsApp Number *", placeholder="e.g. +91 98765 43210")
+        contact_number = st.text_input("Contact Number *", placeholder="Your primary contact number")
+        whatsapp_number = st.text_input("WhatsApp Number *", placeholder="Enter if different from contact number")
+    with right:
         city = st.text_input("City *", placeholder="Your city")
     with right:
         occupation = st.selectbox(
@@ -230,6 +232,10 @@ if submitted:
     if len(full_name.strip()) < 2:
         errors.append("Please enter your full name.")
     digits = re.sub(r"\D", "", whatsapp_number)
+    contact_digits = re.sub(r"\\D", "", contact_number)
+    if not 10 <= len(contact_digits) <= 15:
+        errors.append("Please enter a valid contact number with 10–15 digits.")
+    digits = re.sub(r"\\D", "", whatsapp_number)
     if not 10 <= len(digits) <= 15:
         errors.append("Please enter a valid WhatsApp number with 10–15 digits.")
     if not city.strip():
@@ -260,6 +266,7 @@ if submitted:
             payload = {
                 "token": submission_token,
                 "full_name": full_name.strip(),
+                "contact_number": contact_number.strip(),
                 "whatsapp_number": whatsapp_number.strip(),
                 "city": city.strip(),
                 "occupation": occupation,
