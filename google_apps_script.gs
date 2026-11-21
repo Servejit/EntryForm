@@ -175,8 +175,7 @@ function getFirstCredentialDataRow(sheet) {
 
   const hasHeadings =
     headings[0] === "username" &&
-    headings[1] === "password" &&
-    (headings[2] === "name" || headings[2] === "client name" || headings[2] === "assigned name");
+    headings[1] === "password";
 
   return hasHeadings ? 2 : 1;
 }
