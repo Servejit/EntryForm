@@ -25,7 +25,7 @@ function doPost(e) {
     }
 
     const required = [
-      "full_name", "mobile", "email", "city", "occupation",
+      "full_name", "whatsapp_number", "city", "occupation",
       "trading_experience", "areas_of_interest"
     ];
     for (const key of required) {
@@ -40,7 +40,7 @@ function doPost(e) {
     try {
       if (sheet.getLastRow() === 0) {
         sheet.appendRow([
-          "Submitted At", "Full Name", "Mobile Number", "Email Address", "City",
+          "Submitted At", "Full Name", "WhatsApp Number", "City",
           "Occupation", "Trading Experience", "Areas of Interest", "Message",
           "Contact Consent"
         ]);
@@ -50,8 +50,7 @@ function doPost(e) {
       sheet.appendRow([
         new Date(),
         cleanCell(body.full_name),
-        cleanCell(body.mobile),
-        cleanCell(body.email),
+        cleanCell(body.whatsapp_number),
         cleanCell(body.city),
         cleanCell(body.occupation),
         cleanCell(body.trading_experience),
