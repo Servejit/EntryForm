@@ -191,9 +191,9 @@ function doPost(e) {
     // Ensure the response sheet has headings if it is empty.
     if (responseSheet.getLastRow() === 0) {
       responseSheet.appendRow([
-        "Submitted At", "Full Name", "Email Address", "Contact Number", "WhatsApp Number", "City",
+        "Submitted At", "Full Name", "Contact Number", "WhatsApp Number", "City",
         "Occupation", "Trading Experience", "Areas of Interest", "Message",
-        "Contact Consent"
+        "Contact Consent", "Email Address"
       ]);
       responseSheet.setFrozenRows(1);
     }
@@ -202,7 +202,6 @@ function doPost(e) {
     responseSheet.appendRow([
       new Date(),
       cleanCell(body.full_name),
-      cleanCell(emailAddress),
       cleanCell(body.contact_number),
       cleanCell(body.whatsapp_number),
       cleanCell(body.city),
@@ -210,7 +209,8 @@ function doPost(e) {
       cleanCell(body.trading_experience),
       cleanCell(body.areas_of_interest || ""),
       cleanCell(body.message || ""),
-      body.contact_consent === true ? "Yes" : "No"
+      body.contact_consent === true ? "Yes" : "No",
+      cleanCell(emailAddress)
     ]);
 
     usernameSheet.getRange(selectedRow, 3).setValue(cleanCell(body.full_name));
