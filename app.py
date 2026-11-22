@@ -264,6 +264,7 @@ with st.form("client_registration_form", clear_on_submit=False):
     left, right = st.columns(2)
     with left:
         full_name = st.text_input("Full Name *", placeholder="Enter your full name")
+        email = st.text_input("Email Address *", placeholder="Enter your email address")
         contact_number = st.text_input("Contact Number *", placeholder="Your primary contact number")
         whatsapp_number = st.text_input("WhatsApp Number *", placeholder="Enter if different from contact number")
         city = st.text_input("City *", placeholder="Your city")
@@ -297,6 +298,8 @@ if submitted:
     errors = []
     if len(full_name.strip()) < 2:
         errors.append("Please enter your full name.")
+    if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email.strip()):
+        errors.append("Please enter a valid email address.")
     digits = re.sub(r"\D", "", whatsapp_number)
     contact_digits = re.sub(r"\D", "", contact_number)
     if not 10 <= len(contact_digits) <= 15:
@@ -339,6 +342,7 @@ if submitted:
             payload = {
                 "token": submission_token,
                 "full_name": full_name.strip(),
+                "email": email.strip(),
                 "contact_number": contact_number.strip(),
                 "whatsapp_number": whatsapp_number.strip(),
                 "city": city.strip(),
