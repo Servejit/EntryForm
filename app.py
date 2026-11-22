@@ -19,6 +19,31 @@ FLOWER_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 72" fil
 <path d="M34 64 Q60 69 86 64"/>
 </svg>"""
 
+@st.dialog("Registration Completed", width="small")
+def show_registration_done_popup():
+    st.markdown(
+        """
+        <div style="
+            background:linear-gradient(145deg,#0b2923,#142d35);
+            border:1px solid rgba(74,222,128,.58);
+            border-radius:20px;padding:26px 20px;text-align:center;
+            box-shadow:0 16px 45px rgba(0,0,0,.28);">
+          <div style="font-size:38px;margin-bottom:8px;">✓</div>
+          <div style="color:#86efac;font-size:22px;font-weight:800;line-height:1.35;">
+            Registration Done!
+          </div>
+          <div style="color:#f7f0df;font-size:16px;font-weight:650;margin:12px 0 4px;">
+            Your Registration has been done.
+          </div>
+          <div style="color:#cbd8d0;font-size:13px;margin-top:12px;">
+            Thank you for registering with 6thSense-Vardaan.
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 @st.dialog("Congratulations!", width="small")
 def show_trial_popup(username, password):
     safe_username = html.escape(str(username))
@@ -303,7 +328,7 @@ if submitted:
         re.sub(r"\D", "", whatsapp_number),
     )
     if st.session_state.get("successful_registration_details") == current_registration:
-        st.info("Your Registration has been done.")
+        show_registration_done_popup()
         submitted = False
 
 if submitted:
