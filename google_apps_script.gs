@@ -6,7 +6,8 @@
  *   SPREADSHEET_ID = your existing spreadsheet ID
  *
  * In the same spreadsheet, create a tab named exactly: username
- * Column A = Username, Column B = Password, Column C = Assigned Client Name.
+ * Column A = Username, Column B = Password, Column C = Assigned Client Name,
+ * Column D = Username Assigned Date, Column E = Trial End Date (15 days later).
  *
  * Deploy as Web App: Execute as Me; access Anyone.
  */
@@ -131,6 +132,11 @@ function doPost(e) {
     }
 
     const firstCredentialRow = getFirstCredentialDataRow(usernameSheet);
+    // Add date-column headings only when this sheet already uses a header row.
+    // If row 1 contains the first credential pair, preserve it without inserting a row.
+    if (firstCredentialRow === 2) {
+      usernameSheet.getRange(1, 4, 1, 2).setValues([["Username Assigned Date", "Trial End Date"]]);
+    }
     const lastCredentialRow = usernameSheet.getLastRow();
     if (lastCredentialRow < firstCredentialRow) {
       return jsonResponse({
@@ -213,7 +219,13 @@ function doPost(e) {
       cleanCell(emailAddress)
     ]);
 
+    const usernameAssignedDate = new Date();
+    const trialEndDate = new Date(usernameAssignedDate);
+    trialEndDate.setDate(trialEndDate.getDate() + 15);
+
     usernameSheet.getRange(selectedRow, 3).setValue(cleanCell(body.full_name));
+    usernameSheet.getRange(selectedRow, 4).setValue(usernameAssignedDate).setNumberFormat("dd-MMM-yyyy");
+    usernameSheet.getRange(selectedRow, 5).setValue(trialEndDate).setNumberFormat("dd-MMM-yyyy");
     SpreadsheetApp.flush();
 
     // Send the welcome email after the registration and credential assignment are saved.
@@ -271,7 +283,7 @@ function sendWelcomeEmail(recipient, fullName, username, password) {
     "",
     "WELCOME to 6thSense-Vardaan!",
     "",
-    "Your 10-days trial account has been created successfully. Use the login details below:",
+    "Your 15-days trial account has been created successfully. Use the login details below:",
     "",
     "Username: " + username,
     "Password: " + password,
@@ -286,7 +298,7 @@ function sendWelcomeEmail(recipient, fullName, username, password) {
     '<div style="font-family:Arial,sans-serif;color:#24332d;line-height:1.65;max-width:600px">',
     '<h2 style="color:#176b50">Welcome to 6thSense-Vardaan!</h2>',
     '<p>Dear ' + escapeHtml(fullName || "User") + ',</p>',
-    '<p>Your 10-days trial account has been created successfully. Your login details are:</p>',
+    '<p>Your 15-days trial account has been created successfully. Your login details are:</p>',
     '<div style="background:#f3f7f4;border:1px solid #d7e5dc;border-radius:10px;padding:16px">',
     '<p><strong>Username:</strong> ' + escapeHtml(username) + '</p>',
     '<p><strong>Password:</strong> ' + escapeHtml(password) + '</p>',
