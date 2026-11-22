@@ -409,6 +409,9 @@ if submitted:
                     "Your form has not been confirmed as submitted. Please try again in a moment."
                 )
 
+if submitted:
+    st.session_state["entryform_registration_processing"] = False
+
 st.markdown(
     '<div class="privacy-note">Your details are collected only to respond to this '
     'registration or enquiry. Please do not submit passwords, payment details, '
