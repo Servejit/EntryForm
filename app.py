@@ -1,6 +1,7 @@
 import html
 import re
 import requests
+import time
 import streamlit as st
 
 st.set_page_config(
@@ -294,6 +295,13 @@ with st.form("client_registration_form", clear_on_submit=False):
     )
     submitted = st.form_submit_button("Submit Registration")
 
+# During the five-second success state, show a message instead of resubmitting.
+if submitted:
+    success_at = st.session_state.get("registration_success_at")
+    if success_at is not None and time.time() - success_at < 5:
+        st.info("Your Registration has been done.")
+        submitted = False
+
 if submitted:
     errors = []
     if len(full_name.strip()) < 2:
@@ -365,6 +373,7 @@ if submitted:
                     result = {}
 
                 if result.get("success") is True:
+                    st.session_state["registration_success_at"] = time.time()
                     assigned_username = result.get("username")
                     assigned_password = result.get("password")
                     if assigned_username and assigned_password:
@@ -376,16 +385,10 @@ if submitted:
                                 50% { background-position:100% 50%; box-shadow:0 0 15px rgba(16,185,129,.42); }
                                 100% { background-position:0% 50%; box-shadow:0 0 0 rgba(16,185,129,0); }
                             }
-                            @keyframes entrySubmitLock {
-                                0%, 99% { pointer-events:none; }
-                                100% { pointer-events:auto; }
-                            }
                             [data-testid="stFormSubmitButton"] button {
                                 background:linear-gradient(110deg,#064e3b,#10b981,#d4af37,#065f46) !important;
                                 background-size:260% 260% !important;
-                                animation:entrySubmitEmeraldGold 5s ease-in-out 1,
-                                          entrySubmitLock 5s steps(1,end) 1 both !important;
-                                cursor:not-allowed !important;
+                                animation:entrySubmitEmeraldGold 5s ease-in-out 1 !important;
                             }
                             </style>
                             """,
