@@ -168,19 +168,6 @@ st.markdown(
         color:#101d19; border-color:#f0dcae;
         background:linear-gradient(110deg,#f0dfb8,#d1ad70);
     }
-    /* A subtle five-second theme-colour sweep after the submit button is tapped.
-       This is visual only; Streamlit's original form submission remains unchanged. */
-    @keyframes entrySubmitThemeSweep {
-        0% { background-position:0% 50%; box-shadow:0 0 0 rgba(215,184,121,0); }
-        50% { background-position:100% 50%; box-shadow:0 0 13px rgba(215,184,121,.38); }
-        100% { background-position:0% 50%; box-shadow:0 0 0 rgba(215,184,121,0); }
-    }
-    [data-testid="stFormSubmitButton"] button:focus {
-        background:linear-gradient(110deg,#e8d09c,#c39b5a,#f0dfb8,#c39b5a);
-        background-size:220% 220%;
-        animation:entrySubmitThemeSweep 5s ease-in-out 1;
-        outline:none;
-    }
     .submission-success {
         color:#dcfce7; background:linear-gradient(120deg,rgba(20,83,45,.62),rgba(22,101,52,.30));
         border:1px solid rgba(74,222,128,.58); border-left:5px solid #4ade80;
@@ -381,6 +368,23 @@ if submitted:
                     assigned_username = result.get("username")
                     assigned_password = result.get("password")
                     if assigned_username and assigned_password:
+                        st.markdown(
+                            """
+                            <style>
+                            @keyframes entrySubmitEmeraldGold {
+                                0% { background-position:0% 50%; box-shadow:0 0 0 rgba(16,185,129,0); }
+                                50% { background-position:100% 50%; box-shadow:0 0 15px rgba(16,185,129,.42); }
+                                100% { background-position:0% 50%; box-shadow:0 0 0 rgba(16,185,129,0); }
+                            }
+                            [data-testid="stFormSubmitButton"] button {
+                                background:linear-gradient(110deg,#064e3b,#10b981,#d4af37,#065f46) !important;
+                                background-size:260% 260% !important;
+                                animation:entrySubmitEmeraldGold 5s ease-in-out 1 !important;
+                            }
+                            </style>
+                            """,
+                            unsafe_allow_html=True,
+                        )
                         show_trial_popup(assigned_username, assigned_password)
                         st.balloons()
                         if result.get("email_sent") is True:
