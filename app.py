@@ -401,7 +401,9 @@ if submitted:
                 except ValueError:
                     result = {}
 
-                if result.get("success") is True:
+                if result.get("duplicate") is True:
+                    show_registration_done_popup()
+                elif result.get("success") is True:
                     st.session_state["successful_registration_details"] = (
                         full_name.strip().casefold(),
                         email.strip().casefold(),
