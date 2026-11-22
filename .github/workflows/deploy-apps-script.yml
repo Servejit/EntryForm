@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - google_apps_script.gs
+      - appsscript.json
       - .github/workflows/deploy-apps-script.yml
   workflow_dispatch:
 
@@ -70,8 +71,16 @@ jobs:
           test -n "$CLASP_SCRIPT_ID" || { echo "ERROR: Missing CLASP_SCRIPT_ID secret."; exit 1; }
           mkdir -p deploy
           cp google_apps_script.gs deploy/Code.gs
+          cat > deploy/appsscript.json <<'JSON'
+          {
+            "timeZone": "Asia/Kolkata",
+            "dependencies": {},
+            "exceptionLogging": "STACKDRIVER",
+            "runtimeVersion": "V8"
+          }
+          JSON
           printf '{"scriptId":"%s","rootDir":"."}\n' "$CLASP_SCRIPT_ID" > deploy/.clasp.json
-          node -e "JSON.parse(require('fs').readFileSync('deploy/.clasp.json','utf8')); console.log('clasp config JSON valid')"
+          node -e "JSON.parse(require('fs').readFileSync('deploy/.clasp.json','utf8')); JSON.parse(require('fs').readFileSync('deploy/appsscript.json','utf8')); console.log('clasp config and Apps Script manifest JSON valid')"
 
       - name: Upload Code.gs to Google Apps Script
         run: |
