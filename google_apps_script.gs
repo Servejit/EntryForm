@@ -235,6 +235,8 @@ function doPost(e) {
     try {
       sendWelcomeEmail(emailAddress, body.full_name, selectedUsername, selectedPassword);
       welcomeEmailSent = true;
+      usernameSheet.getRange(selectedRow, 6).setValue("Email sent");
+      SpreadsheetApp.flush();
       welcomeEmailMessage = "Welcome email sent to " + emailAddress + ".";
     } catch (emailError) {
       console.error("Welcome email failed: " + emailError);
