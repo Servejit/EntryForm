@@ -299,7 +299,6 @@ with st.form("client_registration_form", clear_on_submit=False):
     is_processing = st.session_state.get("entryform_registration_processing", False)
     submitted = st.form_submit_button(
         "⏳ Processing..." if is_processing else "Submit Registration",
-        disabled=is_processing,
         on_click=mark_registration_processing,
     )
 
