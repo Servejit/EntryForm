@@ -371,7 +371,13 @@ if submitted:
                         show_trial_popup(assigned_username, assigned_password)
                         st.balloons()
                         if result.get("email_sent") is True:
-                            st.success(result.get("email_message", "Welcome email sent successfully."))
+                            success_message = html.escape(str(result.get(
+                                "email_message", "Welcome email sent successfully."
+                            )))
+                            st.markdown(
+                                '<div class="submission-success">✓ ' + success_message + '</div>',
+                                unsafe_allow_html=True,
+                            )
                         else:
                             st.warning(result.get(
                                 "email_message",
