@@ -115,6 +115,33 @@ function doPost(e) {
     lockAcquired = true;
 
     const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+    // Create and check the dedicated Emails tab before allocating any credentials.
+    let emailsSheet = spreadsheet.getSheetByName("Emails");
+    if (!emailsSheet) {
+      emailsSheet = spreadsheet.insertSheet("Emails");
+      emailsSheet.getRange(1, 1, 1, 3).setValues([["Email Address", "Saved At", "Full Name"]]);
+      emailsSheet.setFrozenRows(1);
+    } else if (emailsSheet.getLastRow() === 0) {
+      emailsSheet.getRange(1, 1, 1, 3).setValues([["Email Address", "Saved At", "Full Name"]]);
+      emailsSheet.setFrozenRows(1);
+    }
+
+    const normalizedEmail = emailAddress.toLowerCase();
+    const emailLastRow = emailsSheet.getLastRow();
+    if (emailLastRow >= 2) {
+      const savedEmails = emailsSheet.getRange(2, 1, emailLastRow - 1, 1).getDisplayValues();
+      const alreadyRegistered = savedEmails.some(function (row) {
+        return String(row[0] || "").trim().toLowerCase() === normalizedEmail;
+      });
+      if (alreadyRegistered) {
+        return jsonResponse({
+          success: false,
+          duplicate: true,
+          message: "Your Registration has been done."
+        });
+      }
+    }
+
     const usernameSheet = spreadsheet.getSheetByName("username");
     if (!usernameSheet) {
       return jsonResponse({
@@ -123,9 +150,9 @@ function doPost(e) {
       });
     }
 
-    // Use the first response tab other than the credential tab.
+    // Use the first response tab other than the credential tab or Emails tab.
     const responseSheet = spreadsheet.getSheets().find(function (sheet) {
-      return sheet.getName() !== "username";
+      return sheet.getName() !== "username" && sheet.getName() !== "Emails";
     });
     if (!responseSheet) {
       throw new Error("Registration response sheet was not found.");
@@ -243,6 +270,8 @@ function doPost(e) {
       sendWelcomeEmail(emailAddress, body.full_name, selectedUsername, selectedPassword);
       welcomeEmailSent = true;
       usernameSheet.getRange(selectedRow, 7).setValue("Email sent");
+      // Save the address only after Gmail confirms the welcome email send call.
+      emailsSheet.appendRow([normalizedEmail, new Date(), cleanCell(body.full_name)]);
       SpreadsheetApp.flush();
       welcomeEmailMessage = "Welcome email sent to " + emailAddress + ".";
     } catch (emailError) {
