@@ -260,6 +260,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+def mark_registration_processing():
+    st.session_state["entryform_registration_processing"] = True
+
+
 with st.form("client_registration_form", clear_on_submit=False):
     left, right = st.columns(2)
     with left:
@@ -292,7 +296,12 @@ with st.form("client_registration_form", clear_on_submit=False):
     consent = st.checkbox(
         "I agree that 6thSense-Vardaan may contact me about this enquiry. *"
     )
-    submitted = st.form_submit_button("Submit Registration")
+    is_processing = st.session_state.get("entryform_registration_processing", False)
+    submitted = st.form_submit_button(
+        "⏳ Processing..." if is_processing else "Submit Registration",
+        disabled=is_processing,
+        on_click=mark_registration_processing,
+    )
 
 if submitted:
     errors = []
