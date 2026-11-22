@@ -260,10 +260,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-def mark_registration_processing():
-    st.session_state["entryform_registration_processing"] = True
-
-
 with st.form("client_registration_form", clear_on_submit=False):
     left, right = st.columns(2)
     with left:
@@ -296,11 +292,7 @@ with st.form("client_registration_form", clear_on_submit=False):
     consent = st.checkbox(
         "I agree that 6thSense-Vardaan may contact me about this enquiry. *"
     )
-    is_processing = st.session_state.get("entryform_registration_processing", False)
-    submitted = st.form_submit_button(
-        "⏳ Processing..." if is_processing else "Submit Registration",
-        on_click=mark_registration_processing,
-    )
+    submitted = st.form_submit_button("Submit Registration")
 
 if submitted:
     errors = []
@@ -407,9 +399,6 @@ if submitted:
                     "❌ FORM REJECTED — We could not reach the response service. "
                     "Your form has not been confirmed as submitted. Please try again in a moment."
                 )
-
-if submitted:
-    st.session_state["entryform_registration_processing"] = False
 
 st.markdown(
     '<div class="privacy-note">Your details are collected only to respond to this '
