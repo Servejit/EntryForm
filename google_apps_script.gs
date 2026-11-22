@@ -376,3 +376,32 @@ function authorizeGmail() {
   );
   Logger.log("Gmail authorization successful. Available aliases: " + aliases.join(", "));
 }
+
+
+/**
+ * Resends the welcome email for the already-assigned credentials in row 4
+ * of the "username" sheet. Does not create or change any credentials.
+ */
+function resendWelcomeEmailForRow4() {
+  const spreadsheetId = PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID");
+  if (!spreadsheetId) throw new Error("Missing SPREADSHEET_ID script property.");
+
+  const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName("username");
+  if (!sheet) throw new Error('The "username" tab was not found.');
+
+  const row = 4;
+  const values = sheet.getRange(row, 1, 1, 7).getDisplayValues()[0];
+  const username = String(values[0] || "").trim();
+  const password = String(values[1] || "").trim();
+  const fullName = String(values[2] || "").trim();
+  const email = String(values[5] || "").trim();
+
+  if (!username || !password || !fullName || !email) {
+    throw new Error("Row 4 is missing username, password, client name, or email address. No email was sent.");
+  }
+
+  sendWelcomeEmail(email, fullName, username, password);
+  sheet.getRange(row, 7).setValue("Email sent");
+  SpreadsheetApp.flush();
+  Logger.log("Welcome email successfully resent to " + email + " for username " + username);
+}
