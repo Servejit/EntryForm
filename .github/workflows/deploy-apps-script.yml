@@ -1,0 +1,48 @@
+
+name: Automatically Update Google Apps Script
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - google_apps_script.gs
+      - .github/workflows/deploy-apps-script.yml
+  workflow_dispatch:
+
+jobs:
+  update-apps-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get repository files
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install clasp
+        run: npm install -g @google/clasp
+
+      - name: Prepare Google authorization
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          mkdir -p "$HOME"
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+
+      - name: Prepare Apps Script files
+        env:
+          CLASP_SCRIPT_ID: ${{ secrets.CLASP_SCRIPT_ID }}
+        run: |
+          mkdir -p deploy
+          cp google_apps_script.gs deploy/Code.gs
+          printf '{"scriptId":"%s","rootDir":"."}\n' "$CLASP_SCRIPT_ID" > deploy/.clasp.json
+
+      - name: Upload Code.gs to Google Apps Script
+        run: |
+          cd deploy
+          clasp push --force
+          
