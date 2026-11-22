@@ -370,6 +370,13 @@ if submitted:
                     if assigned_username and assigned_password:
                         st.balloons()
                         show_trial_popup(assigned_username, assigned_password)
+                        if result.get("email_sent") is True:
+                            st.success(result.get("email_message", "Welcome email sent successfully."))
+                        else:
+                            st.warning(result.get(
+                                "email_message",
+                                "Registration saved, but the welcome email was not confirmed as sent."
+                            ))
                     else:
                         st.error(
                             "❌ REGISTRATION SAVED, BUT LOGIN CREDENTIALS COULD NOT BE CONFIRMED. "
