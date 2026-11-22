@@ -90,13 +90,18 @@ function doPost(e) {
     }
 
     const required = [
-      "full_name", "contact_number", "whatsapp_number", "city", "occupation",
+      "full_name", "email", "contact_number", "whatsapp_number", "city", "occupation",
       "trading_experience", "areas_of_interest"
     ];
     for (const key of required) {
       if (!body[key] || (Array.isArray(body[key]) && body[key].length === 0)) {
         return jsonResponse({ success: false, message: "Please complete all required fields." });
       }
+    }
+
+    const emailAddress = String(body.email || "").trim();
+    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(emailAddress)) {
+      return jsonResponse({ success: false, message: "Please provide a valid email address." });
     }
 
     const spreadsheetId = properties.getProperty("SPREADSHEET_ID");
@@ -186,7 +191,7 @@ function doPost(e) {
     // Ensure the response sheet has headings if it is empty.
     if (responseSheet.getLastRow() === 0) {
       responseSheet.appendRow([
-        "Submitted At", "Full Name", "Contact Number", "WhatsApp Number", "City",
+        "Submitted At", "Full Name", "Email Address", "Contact Number", "WhatsApp Number", "City",
         "Occupation", "Trading Experience", "Areas of Interest", "Message",
         "Contact Consent"
       ]);
@@ -197,6 +202,7 @@ function doPost(e) {
     responseSheet.appendRow([
       new Date(),
       cleanCell(body.full_name),
+      cleanCell(emailAddress),
       cleanCell(body.contact_number),
       cleanCell(body.whatsapp_number),
       cleanCell(body.city),
@@ -210,11 +216,25 @@ function doPost(e) {
     usernameSheet.getRange(selectedRow, 3).setValue(cleanCell(body.full_name));
     SpreadsheetApp.flush();
 
+    // Send the welcome email after the registration and credential assignment are saved.
+    // Email failure does not undo a successful registration or release the assigned credentials.
+    let welcomeEmailSent = false;
+    let welcomeEmailMessage = "Registration is complete, but the welcome email could not be sent. Please use the credentials shown on this page.";
+    try {
+      sendWelcomeEmail(emailAddress, body.full_name, selectedUsername, selectedPassword);
+      welcomeEmailSent = true;
+      welcomeEmailMessage = "Welcome email sent to " + emailAddress + ".";
+    } catch (emailError) {
+      console.error("Welcome email failed: " + emailError);
+    }
+
     return jsonResponse({
       success: true,
       message: "Registration received and trial credentials assigned.",
       username: selectedUsername,
-      password: selectedPassword
+      password: selectedPassword,
+      email_sent: welcomeEmailSent,
+      email_message: welcomeEmailMessage
     });
 
   } catch (error) {
@@ -228,6 +248,68 @@ function doPost(e) {
       lock.releaseLock();
     }
   }
+}
+
+/**
+ * Sends the new user's welcome email using the configured Gmail send-as alias.
+ * The alias must be visible to the Apps Script owner in Gmail.
+ */
+function sendWelcomeEmail(recipient, fullName, username, password) {
+  const senderAlias = "6thsense.live@gmail.com";
+  const aliases = GmailApp.getAliases();
+  if (aliases.indexOf(senderAlias) === -1) {
+    throw new Error(
+      "The sender alias " + senderAlias +
+      " is not available to this Apps Script account. Check Gmail Send mail as settings."
+    );
+  }
+
+  const loginUrl = "https://6thsense-vardaan.streamlit.app/";
+  const subject = "Welcome to 6thSense-Vardaan";
+  const bodyText = [
+    "Dear " + String(fullName || "User").trim() + ",",
+    "",
+    "WELCOME to 6thSense-Vardaan!",
+    "",
+    "Your 10-days trial account has been created successfully. Use the login details below:",
+    "",
+    "Username: " + username,
+    "Password: " + password,
+    "",
+    "Vardaan Login Link: " + loginUrl,
+    "",
+    "With Thanks,",
+    "6THSENSE-VARDAAN Team"
+  ].join("\n");
+
+  const bodyHtml = [
+    '<div style="font-family:Arial,sans-serif;color:#24332d;line-height:1.65;max-width:600px">',
+    '<h2 style="color:#176b50">Welcome to 6thSense-Vardaan!</h2>',
+    '<p>Dear ' + escapeHtml(fullName || "User") + ',</p>',
+    '<p>Your 10-days trial account has been created successfully. Your login details are:</p>',
+    '<div style="background:#f3f7f4;border:1px solid #d7e5dc;border-radius:10px;padding:16px">',
+    '<p><strong>Username:</strong> ' + escapeHtml(username) + '</p>',
+    '<p><strong>Password:</strong> ' + escapeHtml(password) + '</p>',
+    '</div>',
+    '<p><a href="' + loginUrl + '" style="display:inline-block;background:#176b50;color:#fff;padding:12px 18px;border-radius:7px;text-decoration:none">Open Vardaan Login</a></p>',
+    '<p>With Thanks,<br><strong>6THSENSE-VARDAAN Team</strong></p>',
+    '</div>'
+  ].join("");
+
+  GmailApp.sendEmail(recipient, subject, bodyText, {
+    from: senderAlias,
+    name: "6THSENSE-VARDAAN",
+    htmlBody: bodyHtml
+  });
+}
+
+function escapeHtml(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 /**
