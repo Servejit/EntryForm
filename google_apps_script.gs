@@ -40,6 +40,57 @@ function doPost(e) {
       return jsonResponse({ success: false, message: "Submission could not be authorised." });
     }
 
+    // A plan request is an email notification only. It does not change account access.
+    if (body.action === "plan_request") {
+      const requestToken = properties.getProperty("PLAN_REQUEST_TOKEN") || expectedToken;
+      if (!requestToken || body.token !== requestToken) {
+        return jsonResponse({ success: false, message: "Plan request could not be authorised." });
+      }
+
+      const plans = {
+        "15_days": { amount: 250, duration: "15 days", label: "Trial extension" },
+        "1_month": { amount: 500, duration: "1 month", label: "Monthly plan" },
+        "3_months": { amount: 1200, duration: "3 months", label: "Quarterly plan" }
+      };
+      const plan = plans[String(body.plan || "")];
+      if (!plan) {
+        return jsonResponse({ success: false, message: "Please select a valid plan." });
+      }
+
+      const accountEmail = String(body.account_email || "").trim();
+      const accountId = String(body.account_id || "").trim();
+      if (!accountEmail || !accountId) {
+        return jsonResponse({ success: false, message: "Account details are missing." });
+      }
+
+      const requestedAt = new Date();
+      const subject = "6thSense-Vardaan plan extension request";
+      const message = [
+        "A user has requested an account plan extension.",
+        "",
+        "Account email / User ID: " + accountEmail,
+        "Supabase account ID: " + accountId,
+        "Selected plan: " + plan.label,
+        "Duration: " + plan.duration,
+        "Amount: Rs. " + plan.amount,
+        "Requested at: " + Utilities.formatDate(requestedAt, "Asia/Kolkata", "dd-MMM-yyyy hh:mm:ss a") + " IST",
+        "",
+        "This is only a request notification. No payment was collected and the account was not activated."
+      ].join("\\n");
+
+      MailApp.sendEmail({
+        to: "6thsense.live@gmail.com",
+        subject: subject,
+        body: message,
+        name: "6thSense-Vardaan"
+      });
+
+      return jsonResponse({
+        success: true,
+        message: "Your request has been sent. Your account will remain inactive until the administrator reviews it."
+      });
+    }
+
     const required = [
       "full_name", "contact_number", "whatsapp_number", "city", "occupation",
       "trading_experience", "areas_of_interest"
