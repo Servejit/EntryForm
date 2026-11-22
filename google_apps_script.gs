@@ -11,6 +11,22 @@
  * Deploy as Web App: Execute as Me; access Anyone.
  */
 
+/**
+ * Browser health check. This does not read or change spreadsheet data.
+ */
+function doGet(e) {
+  return HtmlService.createHtmlOutput(
+    '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<title>6thSense-Vardaan Registration API</title></head>' +
+    '<body style="font-family:Arial,sans-serif;max-width:640px;margin:48px auto;padding:24px;line-height:1.6;color:#1f2937">' +
+    '<h2>6thSense-Vardaan Registration API</h2>' +
+    '<p style="color:#15803d;font-weight:bold">API endpoint is running.</p>' +
+    '<p>The registration receiver is ready to accept submissions from the connected application.</p>' +
+    '<p style="color:#64748b;font-size:14px">This page is a status check. It does not submit a registration.</p>' +
+    '</body></html>'
+  ).setTitle('6thSense-Vardaan Registration API');
+}
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
   let lockAcquired = false;
@@ -183,7 +199,7 @@ function getFirstCredentialDataRow(sheet) {
 function cleanCell(value) {
   const text = String(value == null ? "" : value).trim();
   // Prevent spreadsheet formula injection from user-entered text.
-  return /^[=+@\-]/.test(text) ? "'" + text : text;
+  return /^[=+@\\-]/.test(text) ? "'" + text : text;
 }
 
 function jsonResponse(data) {
