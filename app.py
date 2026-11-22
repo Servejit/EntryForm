@@ -1,7 +1,6 @@
 import html
 import re
 import requests
-import time
 import streamlit as st
 
 st.set_page_config(
@@ -295,10 +294,15 @@ with st.form("client_registration_form", clear_on_submit=False):
     )
     submitted = st.form_submit_button("Submit Registration")
 
-# During the five-second success state, show a message instead of resubmitting.
+# Prevent the same successful form details from being submitted again.
 if submitted:
-    success_at = st.session_state.get("registration_success_at")
-    if success_at is not None and time.time() - success_at < 5:
+    current_registration = (
+        full_name.strip().casefold(),
+        email.strip().casefold(),
+        re.sub(r"\D", "", contact_number),
+        re.sub(r"\D", "", whatsapp_number),
+    )
+    if st.session_state.get("successful_registration_details") == current_registration:
         st.info("Your Registration has been done.")
         submitted = False
 
@@ -373,7 +377,12 @@ if submitted:
                     result = {}
 
                 if result.get("success") is True:
-                    st.session_state["registration_success_at"] = time.time()
+                    st.session_state["successful_registration_details"] = (
+                        full_name.strip().casefold(),
+                        email.strip().casefold(),
+                        re.sub(r"\D", "", contact_number),
+                        re.sub(r"\D", "", whatsapp_number),
+                    )
                     assigned_username = result.get("username")
                     assigned_password = result.get("password")
                     if assigned_username and assigned_password:
