@@ -135,7 +135,9 @@ function doPost(e) {
     // Add date-column headings only when this sheet already uses a header row.
     // If row 1 contains the first credential pair, preserve it without inserting a row.
     if (firstCredentialRow === 2) {
-      usernameSheet.getRange(1, 4, 1, 2).setValues([["Username Assigned Date", "Trial End Date"]]);
+      usernameSheet.getRange(1, 4, 1, 4).setValues([[
+        "Username Assigned Date", "Trial End Date", "Email Address", "Email Status"
+      ]]);
     }
     const lastCredentialRow = usernameSheet.getLastRow();
     if (lastCredentialRow < firstCredentialRow) {
@@ -202,6 +204,8 @@ function doPost(e) {
         "Contact Consent", "Email Address"
       ]);
       responseSheet.setFrozenRows(1);
+    } else if (!String(responseSheet.getRange(1, 11).getDisplayValue() || "").trim()) {
+      responseSheet.getRange(1, 11).setValue("Email Address");
     }
 
     // Save the registration first, then mark the credential row as assigned.
@@ -226,6 +230,9 @@ function doPost(e) {
     usernameSheet.getRange(selectedRow, 3).setValue(cleanCell(body.full_name));
     usernameSheet.getRange(selectedRow, 4).setValue(usernameAssignedDate).setNumberFormat("dd-MMM-yyyy");
     usernameSheet.getRange(selectedRow, 5).setValue(trialEndDate).setNumberFormat("dd-MMM-yyyy");
+    // Keep the user's email beside the assigned username and trial dates.
+    usernameSheet.getRange(selectedRow, 6).setValue(cleanCell(emailAddress));
+    usernameSheet.getRange(selectedRow, 7).setValue("Email pending");
     SpreadsheetApp.flush();
 
     // Send the welcome email after the registration and credential assignment are saved.
@@ -235,11 +242,15 @@ function doPost(e) {
     try {
       sendWelcomeEmail(emailAddress, body.full_name, selectedUsername, selectedPassword);
       welcomeEmailSent = true;
-      usernameSheet.getRange(selectedRow, 6).setValue("Email sent");
+      usernameSheet.getRange(selectedRow, 7).setValue("Email sent");
       SpreadsheetApp.flush();
       welcomeEmailMessage = "Welcome email sent to " + emailAddress + ".";
     } catch (emailError) {
+      const safeEmailError = String(emailError && emailError.message ? emailError.message : emailError);
+      usernameSheet.getRange(selectedRow, 7).setValue("Email not sent: " + safeEmailError.substring(0, 180));
+      SpreadsheetApp.flush();
       console.error("Welcome email failed: " + emailError);
+      welcomeEmailMessage = "Registration saved, but welcome email failed: " + safeEmailError;
     }
 
     return jsonResponse({
