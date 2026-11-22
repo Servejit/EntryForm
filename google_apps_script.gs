@@ -101,7 +101,7 @@ function doPost(e) {
     }
 
     const emailAddress = String(body.email || "").trim();
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(emailAddress)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
       return jsonResponse({ success: false, message: "Please provide a valid email address." });
     }
 
