@@ -363,3 +363,16 @@ function jsonResponse(data) {
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+
+/** One-time manual authorization helper. Run this from the Apps Script editor. */
+function authorizeGmail() {
+  const aliases = GmailApp.getAliases();
+  const ownerEmail = Session.getEffectiveUser().getEmail();
+  GmailApp.sendEmail(
+    ownerEmail,
+    "6thSense-Vardaan Gmail authorization test",
+    "This test confirms that the Apps Script project has Gmail send permission."
+  );
+  Logger.log("Gmail authorization successful. Available aliases: " + aliases.join(", "));
+}
