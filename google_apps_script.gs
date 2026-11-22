@@ -277,11 +277,6 @@ function doPost(e) {
       cleanCell(emailAddress)
     ]);
 
-    // Record the email immediately with the registration, regardless of
-    // whether the separate welcome-email delivery succeeds.
-    emailsSheet.appendRow([normalizedEmail, new Date(), cleanCell(body.full_name)]);
-    SpreadsheetApp.flush();
-
     const usernameAssignedDate = new Date();
     const trialEndDate = new Date(usernameAssignedDate);
     trialEndDate.setDate(trialEndDate.getDate() + 15);
@@ -302,6 +297,9 @@ function doPost(e) {
       sendWelcomeEmail(emailAddress, body.full_name, selectedUsername, selectedPassword);
       welcomeEmailSent = true;
       usernameSheet.getRange(selectedRow, 7).setValue("Email sent");
+      // Save the email only after the welcome email has been sent successfully.
+      emailsSheet.appendRow([normalizedEmail, new Date(), cleanCell(body.full_name)]);
+      SpreadsheetApp.flush();
       welcomeEmailMessage = "Welcome email sent to " + emailAddress + ".";
     } catch (emailError) {
       const safeEmailError = String(emailError && emailError.message ? emailError.message : emailError);
