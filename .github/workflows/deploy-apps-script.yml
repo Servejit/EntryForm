@@ -29,15 +29,45 @@ jobs:
         env:
           CLASPRC_JSON_BASE64: ${{ secrets.CLASPRC_JSON_BASE64 }}
         run: |
-          test -n "$CLASPRC_JSON_BASE64" || { echo "Missing Google authorization secret"; exit 1; }
-          printf '%s' "$CLASPRC_JSON_BASE64" | base64 --decode > "$HOME/.clasprc.json"
-          node -e "JSON.parse(require('fs').readFileSync(process.env.HOME+'/.clasprc.json','utf8')); console.log('Google credentials JSON valid')"
+          set -euo pipefail
+          if [ -z "${CLASPRC_JSON_BASE64:-}" ]; then
+            echo "ERROR: GitHub secret CLASPRC_JSON_BASE64 is missing or empty."
+            exit 1
+          fi
+          if ! printf '%s' "$CLASPRC_JSON_BASE64" | base64 --decode > "$HOME/.clasprc.json"; then
+            echo "ERROR: CLASPRC_JSON_BASE64 is not valid Base64."
+            exit 1
+          fi
+          node <<'NODE'
+          const fs = require('fs');
+          const p = process.env.HOME + '/.clasprc.json';
+          let x;
+          try {
+            x = JSON.parse(fs.readFileSync(p, 'utf8'));
+          } catch (e) {
+            console.error('ERROR: Decoded secret is not valid JSON:', e.message);
+            process.exit(1);
+          }
+          const t = x && x.tokens && x.tokens.default;
+          if (!t || typeof t !== 'object') {
+            console.error('ERROR: Credentials JSON is missing tokens.default.');
+            process.exit(1);
+          }
+          const required = ['client_id', 'client_secret', 'refresh_token'];
+          const missing = required.filter(k => typeof t[k] !== 'string' || !t[k]);
+          if (missing.length) {
+            console.error('ERROR: Credentials are missing required fields:', missing.join(', '));
+            process.exit(1);
+          }
+          console.log('Google credentials JSON valid; tokens.default has the required fields.');
+          NODE
 
       - name: Prepare Apps Script files
         env:
           CLASP_SCRIPT_ID: ${{ secrets.CLASP_SCRIPT_ID }}
         run: |
-          test -n "$CLASP_SCRIPT_ID" || { echo "Missing CLASP_SCRIPT_ID secret"; exit 1; }
+          set -euo pipefail
+          test -n "$CLASP_SCRIPT_ID" || { echo "ERROR: Missing CLASP_SCRIPT_ID secret."; exit 1; }
           mkdir -p deploy
           cp google_apps_script.gs deploy/Code.gs
           printf '{"scriptId":"%s","rootDir":"."}\n' "$CLASP_SCRIPT_ID" > deploy/.clasp.json
