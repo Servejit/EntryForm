@@ -74,7 +74,7 @@ function doPost(e) {
         "Requested at: " + Utilities.formatDate(requestedAt, "Asia/Kolkata", "dd-MMM-yyyy hh:mm:ss a") + " IST",
         "",
         "This is only a request notification. No payment was collected and the account was not activated."
-      ].join("\\n");
+      ].join("\n");
 
       MailApp.sendEmail({
         to: "6thsense.live@gmail.com",
