@@ -168,6 +168,49 @@ st.markdown(
         color:#101d19; border-color:#f0dcae;
         background:linear-gradient(110deg,#f0dfb8,#d1ad70);
     }
+    .success-celebration {
+        position:relative; overflow:hidden; margin:1rem 0 .85rem;
+        padding:1.1rem 1.2rem; border-radius:16px;
+        color:#eafff0; text-align:center; font-weight:750; line-height:1.65;
+        background:linear-gradient(120deg,rgba(20,83,45,.82),rgba(22,101,52,.58));
+        border:1px solid rgba(134,239,172,.72);
+        box-shadow:0 12px 34px rgba(22,163,74,.20),inset 0 1px 0 rgba(240,253,244,.16);
+        animation:successGlow 2.8s ease-in-out infinite;
+    }
+    .success-celebration .success-icon { display:block; font-size:1.65rem; margin-bottom:.2rem; }
+    .balloon-stage {
+        height:112px; position:relative; overflow:hidden; margin:.35rem 0 .8rem;
+        pointer-events:none;
+    }
+    .party-balloon {
+        position:absolute; bottom:-88px; width:34px; height:44px;
+        border-radius:50% 50% 46% 46%;
+        box-shadow:inset -6px -5px 0 rgba(0,0,0,.10),inset 6px 5px 0 rgba(255,255,255,.20);
+        animation:balloonRise 4.8s ease-in infinite;
+    }
+    .party-balloon:before {
+        content:""; position:absolute; width:7px; height:7px; left:13px; bottom:-4px;
+        background:inherit; transform:rotate(45deg);
+    }
+    .party-balloon:after {
+        content:""; position:absolute; width:1px; height:43px; top:48px; left:17px;
+        background:rgba(220,252,231,.55);
+    }
+    .party-balloon:nth-child(1) { left:8%; background:#4ade80; animation-delay:0s; }
+    .party-balloon:nth-child(2) { left:24%; background:#d7b879; animation-delay:1.1s; transform:scale(.82); }
+    .party-balloon:nth-child(3) { left:43%; background:#16a34a; animation-delay:.45s; }
+    .party-balloon:nth-child(4) { left:63%; background:#f0dcae; animation-delay:1.6s; transform:scale(.88); }
+    .party-balloon:nth-child(5) { left:82%; background:#86efac; animation-delay:.8s; }
+    @keyframes balloonRise {
+        0% { bottom:-88px; opacity:0; }
+        12% { opacity:1; }
+        85% { opacity:1; }
+        100% { bottom:145px; opacity:0; }
+    }
+    @keyframes successGlow {
+        0%,100% { box-shadow:0 12px 30px rgba(22,163,74,.16),inset 0 1px 0 rgba(240,253,244,.14); }
+        50% { box-shadow:0 14px 38px rgba(74,222,128,.30),inset 0 1px 0 rgba(240,253,244,.22); }
+    }
     .submission-success {
         color:#dcfce7; background:linear-gradient(120deg,rgba(20,83,45,.62),rgba(22,101,52,.30));
         border:1px solid rgba(74,222,128,.58); border-left:5px solid #4ade80;
@@ -368,10 +411,24 @@ if submitted:
                     assigned_username = result.get("username")
                     assigned_password = result.get("password")
                     if assigned_username and assigned_password:
-                        st.balloons()
                         show_trial_popup(assigned_username, assigned_password)
+                        st.markdown(
+                            '<div class="balloon-stage" aria-hidden="true">'
+                            '<span class="party-balloon"></span><span class="party-balloon"></span>'
+                            '<span class="party-balloon"></span><span class="party-balloon"></span>'
+                            '<span class="party-balloon"></span></div>',
+                            unsafe_allow_html=True,
+                        )
                         if result.get("email_sent") is True:
-                            st.success(result.get("email_message", "Welcome email sent successfully."))
+                            success_text = html.escape(str(result.get(
+                                "email_message", "Welcome email sent successfully."
+                            )))
+                            st.markdown(
+                                '<div class="success-celebration">'
+                                '<span class="success-icon">🌿 ✨ 🎉</span>'
+                                + success_text + '</div>',
+                                unsafe_allow_html=True,
+                            )
                         else:
                             st.warning(result.get(
                                 "email_message",
