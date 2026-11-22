@@ -115,7 +115,15 @@ function doPost(e) {
     lockAcquired = true;
 
     const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
-    // Create and check the dedicated Emails tab before allocating any credentials.
+    const usernameSheet = spreadsheet.getSheetByName("username");
+    if (!usernameSheet) {
+      return jsonResponse({
+        success: false,
+        message: 'The "username" tab was not found. Please contact the administrator.'
+      });
+    }
+
+    // Create the dedicated Emails tab and migrate previously emailed registrations.
     let emailsSheet = spreadsheet.getSheetByName("Emails");
     if (!emailsSheet) {
       emailsSheet = spreadsheet.insertSheet("Emails");
@@ -127,6 +135,33 @@ function doPost(e) {
     }
 
     const normalizedEmail = emailAddress.toLowerCase();
+
+    // Backfill historical successful welcome emails from username columns F/G.
+    // This makes existing clients duplicates too, not only future registrations.
+    const firstExistingCredentialRow = getFirstCredentialDataRow(usernameSheet);
+    const lastExistingCredentialRow = usernameSheet.getLastRow();
+    const emailsAlreadySaved = new Set(
+      emailsSheet.getLastRow() >= 2
+        ? emailsSheet.getRange(2, 1, emailsSheet.getLastRow() - 1, 1)
+            .getDisplayValues()
+            .map(function (row) { return String(row[0] || "").trim().toLowerCase(); })
+        : []
+    );
+    if (lastExistingCredentialRow >= firstExistingCredentialRow) {
+      const existingCount = lastExistingCredentialRow - firstExistingCredentialRow + 1;
+      const existingClients = usernameSheet
+        .getRange(firstExistingCredentialRow, 3, existingCount, 5)
+        .getDisplayValues();
+      existingClients.forEach(function (row) {
+        const previousEmail = String(row[3] || "").trim().toLowerCase();
+        const previousEmailStatus = String(row[4] || "").trim().toLowerCase();
+        if (previousEmail && previousEmailStatus === "email sent" && !emailsAlreadySaved.has(previousEmail)) {
+          emailsSheet.appendRow([previousEmail, "", String(row[0] || "").trim()]);
+          emailsAlreadySaved.add(previousEmail);
+        }
+      });
+    }
+
     const emailLastRow = emailsSheet.getLastRow();
     if (emailLastRow >= 2) {
       const savedEmails = emailsSheet.getRange(2, 1, emailLastRow - 1, 1).getDisplayValues();
@@ -140,14 +175,6 @@ function doPost(e) {
           message: "Your Registration has been done."
         });
       }
-    }
-
-    const usernameSheet = spreadsheet.getSheetByName("username");
-    if (!usernameSheet) {
-      return jsonResponse({
-        success: false,
-        message: 'The "username" tab was not found. Please contact the administrator.'
-      });
     }
 
     // Use the first response tab other than the credential tab or Emails tab.
