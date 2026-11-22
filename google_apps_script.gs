@@ -35,18 +35,16 @@ function doPost(e) {
     const body = JSON.parse((e && e.postData && e.postData.contents) || "{}");
     const properties = PropertiesService.getScriptProperties();
     const expectedToken = properties.getProperty("SUBMISSION_TOKEN");
+    const acceptedToken = body.action === "plan_request"
+      ? (properties.getProperty("PLAN_REQUEST_TOKEN") || expectedToken)
+      : expectedToken;
 
-    if (!expectedToken || body.token !== expectedToken) {
+    if (!acceptedToken || body.token !== acceptedToken) {
       return jsonResponse({ success: false, message: "Submission could not be authorised." });
     }
 
     // A plan request is an email notification only. It does not change account access.
     if (body.action === "plan_request") {
-      const requestToken = properties.getProperty("PLAN_REQUEST_TOKEN") || expectedToken;
-      if (!requestToken || body.token !== requestToken) {
-        return jsonResponse({ success: false, message: "Plan request could not be authorised." });
-      }
-
       const plans = {
         "15_days": { amount: 250, duration: "15 days", label: "Trial extension" },
         "1_month": { amount: 500, duration: "1 month", label: "Monthly plan" },
