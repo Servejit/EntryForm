@@ -35,7 +35,7 @@ def show_trial_popup(username, password):
             Congratulations!
           </div>
           <div style="color:#f7f0df;font-size:17px;font-weight:700;margin:10px 0 18px;">
-            You Have Unlocked 10-Days Trial Period
+            You Have Unlocked 15-Days Trial Period
           </div>
           <div style="text-align:left;background:rgba(255,255,255,.07);
               border:1px solid rgba(215,184,121,.35);border-radius:12px;
