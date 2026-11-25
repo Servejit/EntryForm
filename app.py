@@ -107,8 +107,23 @@ st.markdown(
         padding-top: 2.2rem;
         padding-bottom: 3rem;
     }
-    .brand-flower { width:76px; height:52px; margin:0 auto 8px; color:#c9a76a; }
+    .brand-flower {
+        width:76px; height:52px; margin:0 auto 8px; color:#c9a76a;
+        animation: flowerShimmer 3s ease-in-out infinite;
+        transform-origin:50% 55%;
+    }
     .brand-flower svg { width:100%; height:100%; }
+    @keyframes flowerShimmer {
+        0%, 100% {
+            filter:drop-shadow(0 0 2px rgba(201,167,106,.22)) brightness(.96);
+        }
+        50% {
+            filter:drop-shadow(0 0 7px rgba(255,220,145,.78)) brightness(1.42);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .brand-flower { animation:none; }
+    }
     .welcome {
         text-align:center; color:#d9c79f; font-size:.95rem;
         letter-spacing:.20em; text-transform:uppercase; margin-bottom:.25rem;
